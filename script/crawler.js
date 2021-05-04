@@ -102,6 +102,15 @@ class Crawler
         this._selected = this._selected.children[num];
     }
 
+    selectParent()
+    {
+        const wanted = this._selected.parent;
+        if (wanted==null)
+        {
+            throw "Could not find the paretn of selected Object";
+        }
+        this._selected = wanted;
+    }    
 
 
     /** 
