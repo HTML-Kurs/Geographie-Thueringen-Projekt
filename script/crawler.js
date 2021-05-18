@@ -31,16 +31,18 @@ class Crawler
      */ 
     static textToElement(text)
     {
-        const el = document.createElement( 'html' );
-        el.innerHTML = text;
-        return el;
+        var wrapper= document.createElement('html');
+        wrapper.innerHTML= text;
+        return wrapper;
     }
 
 
     constructor(doc) 
     {    
         this._htmlDoc = doc;
-        this.resetSelectedElement();    
+        this.resetSelectedElement();  
+        this.resetMainElement();
+        
     }
 
     /**
@@ -48,9 +50,7 @@ class Crawler
      */
     resetMainElement()
     {
-        this._mainElement = new Document();
-        this._mainElement.appendChild(this._selected);
-        console.log(this._mainElement);
+        this._mainElement = Crawler.textToElement(this._htmlDoc);;
     }
 
     /**
@@ -59,7 +59,6 @@ class Crawler
      resetSelectedElement()
      {
         this._selected = Crawler.textToElement(this._htmlDoc);
-        this.resetMainElement();
      }
  
  
@@ -76,7 +75,46 @@ class Crawler
             throw "Could not find Element with Id:" + id;
         }
         this._selected = wanted;
-    }    
+    }  
+    
+    selectChildrenByTag(tag)
+    {
+        let g = tag.split("[");
+        let t = g[0].toUpperCase();
+        if (g.length==2)
+        {
+            let number = parseInt(tag.split("[")[1].replace(/\]/, ""));
+            var current = 0;
+            for (var el of this._selected.children)
+            {
+                if (el.tagName==t)
+                {
+                    current++;
+                    if (current == number)
+                    {
+                        this._selected = el;
+                        return;
+                    }
+                }
+            }
+            throw "Could not find Element with tag:" + t;
+        }
+        else
+        {
+            for (var el of this._selected.children)
+            {
+                console.log(el.tagName + " ?? " + t)
+                if (el.tagName==t)
+                {
+                    this._selected = el;
+                    return; 
+                }
+            }
+            throw "Could not find Element with tag:" + tag;
+        }
+    }  
+
+   
 
     /** 
      * Selects an Element by its XPath
@@ -84,15 +122,16 @@ class Crawler
      */
      selectElementByXPath(path)
      {
-         const wanted =  this._mainElement.evaluate(path, this._mainElement, null, 
-                                                XPathResult.FIRST_ORDERED_NODE_TYPE, 
-                                                null).singleNodeValue;
-         if (wanted==null)
-         {
-             throw "Could not find Element with Path: " + path;
-         }
-         this._selected = wanted;
+        const search =  path.toString().split("/");
+        search.shift();
+        search.forEach(element => {
+            if (element!="html") {
+            this.selectChildrenByTag(element)  
+            }
+        });
+        console.log(this._selected);
      }
+
 
     /** 
      * @param {*} num Nummer des Elements
