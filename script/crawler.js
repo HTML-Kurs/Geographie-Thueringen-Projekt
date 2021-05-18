@@ -103,7 +103,6 @@ class Crawler
         {
             for (var el of this._selected.children)
             {
-                console.log(el.tagName + " ?? " + t)
                 if (el.tagName==t)
                 {
                     this._selected = el;
@@ -129,7 +128,6 @@ class Crawler
             this.selectChildrenByTag(element)  
             }
         });
-        console.log(this._selected);
      }
 
 
